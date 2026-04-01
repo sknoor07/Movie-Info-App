@@ -4,7 +4,7 @@ import './App.css'
 import Search from './components/Search'
 import { api } from './api/api';
 import { Spinner } from './components/Spinner';
-import MovieCard from './components/moviecard';
+import MovieCard from './components/MovieCard';
 
 const App=()=>{
   const[searchTerm, setSearchTerm]= useState("");
@@ -24,7 +24,7 @@ const App=()=>{
     console.log(response.data);
   } catch (error) {
     setErrorMessage(
-    error.response?.data?.Error || "Failed to get movies, Server Error"
+    error.response?.data?.status_message || "Failed to get movies, Server Error"
   );
   setMovieList([]);
   }finally{
@@ -48,9 +48,9 @@ const App=()=>{
           errorMessage?
           (<p className='text-red-500'>{errorMessage}</p>):
           (<ul>
-            {movieList.map((movie,index)=>{
+            {movieList.map((movie)=>{
               return (
-                <MovieCard key={index} movie={movie}/>
+                <MovieCard key={movie.id} movie={movie}/>
               );
             })}
           </ul>)}
