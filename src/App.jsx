@@ -6,6 +6,7 @@ import { api } from './api/api';
 import { Spinner } from './components/Spinner';
 import MovieCard from './components/MovieCard';
 import { useDebounce } from 'react-use';
+import { getTrendingMovies, updateSearchCount } from './lib/appwrite';
 
 const App=()=>{
   const[searchTerm, setSearchTerm]= useState("");
@@ -13,6 +14,7 @@ const App=()=>{
   const [movieList, setMovieList]= useState([]);
   const [isloading, setIsLoading] = useState(false);
   const [debouceSearchTerm, setDebounceSearchTerm]= useState("");
+  const [trendingMovies, setTrendingMovies]= useState([]);
 
   useDebounce(()=>setDebounceSearchTerm(searchTerm),500,[searchTerm]);
 
@@ -26,6 +28,12 @@ const App=()=>{
     const response = query?await api.get(`/search/movie?query=${encodeURIComponent(query)}`): await api.get('/discover/movie');
     
     setMovieList(response.data.results);
+
+    if (query && response.data.results.length > 0) {
+      void updateSearchCount(query, response.data.results[0]).then(() => {
+        loadTrendingMovies()
+      })
+    }
     console.log(response.data);
   } catch (error) {
     setErrorMessage(
@@ -37,6 +45,20 @@ const App=()=>{
   }
 }
 
+const loadTrendingMovies= async()=>{
+  try{
+    const movies= await getTrendingMovies();
+
+    setTrendingMovies(movies);
+  }catch(e){
+    console.log("Error Loading Trending Movies: " + e);
+  }
+}
+
+useEffect(()=>{
+  loadTrendingMovies();
+},[]);
+
   return(
   <main>
     <div className='pattern' />
@@ -46,6 +68,22 @@ const App=()=>{
           <h1> Find <span className='text-gradient'>Movies</span> you will Enjoy Without Hassle</h1>
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
         </header>
+        {trendingMovies.length>0 && (
+          <section className='trending'>
+            <h2>Trending Movies</h2>
+            <ul>
+              {trendingMovies.map((movie,index)=>{
+                return (
+                  <li key={movie.$id}>
+                    <p className='px-5'>{index+1}</p>
+                    <img src={movie.poster_url} alt={movie.title} />
+                    <p>{movie.title}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
         <section className='all-movies'>
           <h2 className='mt-[40px]'>All Movies</h2>
           {isloading?
