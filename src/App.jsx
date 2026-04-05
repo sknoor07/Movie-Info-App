@@ -29,8 +29,10 @@ const App=()=>{
     
     setMovieList(response.data.results);
 
-    if(query && response.data.results.length > 0){
-      await updateSearchCount(query, response.data.results[0]);
+    if (query && response.data.results.length > 0) {
+      void updateSearchCount(query, response.data.results[0]).then(() => {
+        loadTrendingMovies()
+      })
     }
     console.log(response.data);
   } catch (error) {
