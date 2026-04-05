@@ -12,15 +12,15 @@ const App=()=>{
   const [movieList, setMovieList]= useState([]);
   const [isloading, setIsLoading] = useState(false);
   useEffect(()=>{
-    fecthMovies();
-  },[])
+    fecthMovies(searchTerm);
+  },[searchTerm])
 
-  const fecthMovies=async ()=>{
+  const fecthMovies=async (query='')=>{
     setIsLoading(true);
    try {
-    const response = await api.get('/discover/movie');
+    const response = query?await api.get(`/search/movie?query=${encodeURIComponent(query)}`): await api.get('/discover/movie');
     
-    setMovieList((prev) => [...prev, ...response.data.results]);
+    setMovieList(response.data.results);
     console.log(response.data);
   } catch (error) {
     setErrorMessage(
