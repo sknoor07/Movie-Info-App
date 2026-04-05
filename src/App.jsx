@@ -5,15 +5,20 @@ import Search from './components/Search'
 import { api } from './api/api';
 import { Spinner } from './components/Spinner';
 import MovieCard from './components/MovieCard';
+import { useDebounce } from 'react-use';
 
 const App=()=>{
   const[searchTerm, setSearchTerm]= useState("");
   const [errorMessage, setErrorMessage]= useState("");
   const [movieList, setMovieList]= useState([]);
   const [isloading, setIsLoading] = useState(false);
+  const [debouceSearchTerm, setDebounceSearchTerm]= useState("");
+
+  useDebounce(()=>setDebounceSearchTerm(searchTerm),500,[searchTerm]);
+
   useEffect(()=>{
-    fecthMovies(searchTerm);
-  },[searchTerm])
+    fecthMovies(debouceSearchTerm);
+  },[debouceSearchTerm])
 
   const fecthMovies=async (query='')=>{
     setIsLoading(true);
